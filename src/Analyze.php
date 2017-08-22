@@ -269,7 +269,7 @@ class Analyze
      *
      * @return int $mode 最頻値
      */
-    public static function calcModeOfRaw()
+    public function calcModeOfRaw()
     {
         // 標本サンプル
         $sample = $this->sample;
