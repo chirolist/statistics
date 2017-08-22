@@ -20,8 +20,6 @@ class Analyze
     private $range_list = [];
 
     public function __construct() {
-        $this->setRangeList();
-        $this->setFrequencyList();
     }
 
     /**
@@ -58,6 +56,11 @@ class Analyze
         $this->class_interval = $class_interval;
         $this->class_min = $class_min;
         $this->class_max = $class_max;
+
+        // 階級の範囲設定
+        $this->setRangeList();
+        // 度数分布表作成
+        $this->setFrequencyList();
     }
 
     /**
