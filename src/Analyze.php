@@ -294,10 +294,10 @@ class Analyze
         // 階級の幅
         $interval = $this->class_interval;
 
-        // 最も度数が多い階級値
-        $max_class_mark = max($this->frequency_list); // x(m)
-        // 簡易的な最頻値の度数
-        $max_frequency = $this->frequency_list[$max_class_mark]; // f(m)
+        // 最頻値を含む階級の度数
+        $max_frequency = max($this->frequency_list); // f(m)
+        // 最頻値を含む階級の階級値
+        $max_class_mark = array_search($max_frequency, $this->frequency_list); // x(m)
 
         // 最頻値を含む階級の１つ前の階級値
         $class_mark_prev = $max_class_mark-$interval; // x(m-1)
