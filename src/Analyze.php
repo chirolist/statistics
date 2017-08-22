@@ -1,13 +1,34 @@
 <?php
+/**
+ * This file is part of the chirolist.statistics library
+ *
+ * @license http://opensource.org/licenses/MIT
+ * @link https://github.com/chirolist/statistics
+ * @version 1.0.0
+ * @package chirolist.statistics
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace Chirolist\Statistics;
 
+/** 
+ * 粗データ並びに度数分布表における平均と中央値と最頻値を求めるクラス
+ *
+ * @package chirolist.statistics
+ * @since  1.0.0
+ *
+ */
 class Analyze
 {
+    // 階級の幅:c
     private $class_interval = 300;
 
+    // 階級の範囲の下限
     private $class_min = 300;
 
+    // 階級の範囲の上限
     private $class_max = 12000;
 
     // 標本サンプル
@@ -19,8 +40,7 @@ class Analyze
     // 階級の範囲リスト
     private $range_list = [];
 
-    public function __construct() {
-    }
+    public function __construct() { }
 
     /**
      * パラメータ設定
@@ -30,6 +50,7 @@ class Analyze
      * @param int $class_min 階級の下限
      * @param int $class_max 階級の上限
      * @throw Exception
+     * @return object Analyze
      */
     public function setParam($sample, $class_interval, $class_min, $class_max)
     {
@@ -52,15 +73,17 @@ class Analyze
             throw Exception('the difference between class_max and class_min must be greater than class_interval');
         }
 
-        $this->sample = $sample;
         $this->class_interval = $class_interval;
         $this->class_min = $class_min;
         $this->class_max = $class_max;
+        $this->sample = $sample;
 
         // 階級の範囲設定
         $this->setRangeList();
         // 度数分布表作成
         $this->setFrequencyList();
+
+        return $this;
     }
 
     /**
@@ -93,10 +116,10 @@ class Analyze
     {
         // 階級の幅
         $interval = $this->class_interval;
-        // 階級値に対する度数の初期化
+
         foreach($this->range_list as $range) {
             $class_mark = $range - floor($interval/2); // 階級値
-            $this->frequency_list[$class_mark] = 0;
+            $this->frequency_list[$class_mark] = 0; // 度数の初期化
         }
     }
 
@@ -116,13 +139,19 @@ class Analyze
         // 階級の最大値
         $class_max = $this->class_max;
 
+        // 階級値に対する度数の数を初期化する
         $this->initFrequencyList();
 
+        // 標本群を回し、サンプルがどの階級の範囲に収まるのか、その度数を集計する
         foreach($sample as $value)
         {
+            // 階級の範囲を下限から上限まで回し、サンプルをふるいにかける
             foreach($this->range_list as $range) {
-                $class_mark = $range - floor($interval/2);
 
+                // 階級値
+                $class_mark = $range - floor($interval/2); // x(m)
+
+                // 下限の階級より下位に収まる場合
                 if($range === $class_min) {
                     if($value < $class_min) {
                         $this->frequency_list[$class_mark]++;
@@ -130,6 +159,7 @@ class Analyze
                     }
                 }
 
+                // 上限の階級より上位に収まる場合
                 if($range === $class_max) {
                     if($class_max < $value) {
                         $this->frequency_list[$class_mark]++;
@@ -137,6 +167,7 @@ class Analyze
                     }
                 }
                 
+                // 各階級の範囲内に収まる場合
                 if($value < $range) {
                     $this->frequency_list[$class_mark]++;
                     break;
@@ -159,7 +190,7 @@ class Analyze
         $n    = count($sample);
         $mean = round($sum/$n,2);
 
-        return $mean;
+        return (int)$mean;
     }
 
     /**
@@ -179,7 +210,7 @@ class Analyze
         $n    = count($sample);
         $mean = round(($sum/$n),2);
 
-        return $mean;
+        return (int)$mean;
     }
 
     /**
@@ -195,16 +226,15 @@ class Analyze
         $n = count($sample);
         if (($n%2) == 0) {
             // 偶数の場合
-            $half_sample      = current(array_slice($sample, ($n/2), 1, true)); // 小さい方からn/2番目の標本
-            $half_sample_next = current(array_slice($sample, ($n/2)+1, 1, true)); // 小さい方から(n+1)/2番目の標本
-            $median = round(($half_sample+$half_sample_next)/2, 3);
+            $sample_mid_prev = current(array_slice($sample, ($n/2), 1, true)); // 小さい方からn/2番目の標本
+            $sample_mid_next = current(array_slice($sample, ($n/2)+1, 1, true)); // 小さい方からn/2+1番目の標本
+            $median = round(($sample_mid_prev+$sample_mid_next)/2, 3);
         } else {
             // 奇数の場合
-            $half_sample = current(array_slice($sample, ($n+1)/2, 1, true)); // 小さい方から(n+1)/2番目の標本
-            $median = $half_sample;
+            $median = $sample_mid = current(array_slice($sample, ($n+1)/2, 1, true)); // 小さい方から(n+1)/2番目の標本
         }
 
-        return $median;
+        return (int)$median;
     }
 
     /**
@@ -237,7 +267,7 @@ class Analyze
 
         $median = $am+$x;
 
-        return $median;
+        return (int)$median;
     }
 
     /**
@@ -255,7 +285,7 @@ class Analyze
             $m += $frequency;
             if($m <= ($count/2)) {
                 $sum_frequency_prev += $frequency; // F(m-1)
-                $prev_class_mark = $class_mark; // F(m-1)の階級値
+                $prev_class_mark = $class_mark; // F(m-1)の階級値:f(m-1)
             }else{
                 $sum_frequency_next += $frequency; //F(m)
             }
@@ -289,10 +319,8 @@ class Analyze
      */
     public function calcModeOfFrequency()
     {
-        // 標本サンプル
-        $sample = $this->sample;
         // 階級の幅
-        $interval = $this->class_interval;
+        $interval = $this->class_interval; // c
 
         // 最頻値を含む階級の度数
         $max_frequency = max($this->frequency_list); // f(m)
@@ -317,8 +345,9 @@ class Analyze
         $denom = $max_frequency-$max_frequency_prev+$max_frequency-$max_frequency_next;
         // fmを比例配分して階級mの下限amからの距離x
         $x = round($numer/$denom,2);
+
         $mode = $am+$x;
 
-        return $mode;
+        return (int)$mode;
     }
 }
