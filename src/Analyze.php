@@ -287,7 +287,7 @@ class Analyze
      *
      * @return int $mode 最頻値
      */
-    public function calcModeOfOfFrequency()
+    public function calcModeOfFrequency()
     {
         // 標本サンプル
         $sample = $this->sample;
