@@ -230,8 +230,9 @@ class Analyze
         // 中央値を含む階級の下限
         $am = $prev_class_mark + floor($interval/2);
 
-        // fmを比例配分して階級mの下限amからの距離x
-        $numer = (($n/2)-$sum_frequency_prev)*$interval;
+        // fmを比例配分して階級mの下限amからの距離xを求める
+        $n = count($sample);
+        $numer = (round($n/2,2)-$sum_frequency_prev)*$interval;
         $x = round($numer/$median_frequency,2);
 
         $median = $am+$x;
