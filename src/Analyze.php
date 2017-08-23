@@ -52,31 +52,43 @@ class Analyze
      * @throw Exception
      * @return object Analyze
      */
-    public function setParam($sample, $class_interval, $class_min, $class_max)
+    public function setParam(array $sample, $class_interval = '', $class_min = '', $class_max = '')
     {
         if(empty($sample)) {
             throw Exception('sample is empty');
         }
-        if($class_interval <= 0) {
+        if(!ctype_digit($class_interval)) {
+            throw InvalidArgumentException('class_interval must be digits');
+        }
+        if(!ctype_digit($class_min)) {
+            throw InvalidArgumentException('class_min must be digits');
+        }
+        if(!ctype_digit($class_max)) {
+            throw InvalidArgumentException('class_max must be digits');
+        }
+        if(!empty($class_interval) && $class_interval <= 0) {
             throw Exception('class_interval cannot be allowed 0 or minus');
         }
-        if($class_min <= 0) {
+        if(!empty($class_min) && $class_min <= 0) {
             throw Exception('class_min cannot be allowed 0 or minus');
         }
-        if($class_max <= 0) {
+        if(!empty($class_max) && $class_max <= 0) {
             throw Exception('class_max cannot be allowed 0 or minus');
         }
-        if($class_min > $class_max) {
-            throw Exception('class_max must be greater than class_min');
-        }
-        if(($class_max - $class_min) < $class_interval) {
-            throw Exception('the difference between class_max and class_min must be greater than class_interval');
+        if(!empty($class_min) && !empty($class_max)) {
+            if($class_min > $class_max) {
+                throw Exception('class_max must be greater than class_min');
+            }
+            if(!empty($class_interval) && (($class_max - $class_min) < $class_interval)) {
+                throw Exception('the difference between class_max and class_min must be greater than class_interval');
+            }
         }
 
-        $this->class_interval = $class_interval;
-        $this->class_min = $class_min;
-        $this->class_max = $class_max;
         $this->sample = $sample;
+
+        if(!empty($class_interval)) $this->class_interval = $class_interval;
+        if(!empty($class_min))      $this->class_min = $class_min;
+        if(!empty($class_max))      $this->class_max = $class_max;
 
         // 階級の範囲設定
         $this->setRangeList();
